@@ -1,5 +1,5 @@
-import sqlite3,utils.classes
-from ..objparser import obj_to_string,string_to_obj
+import sqlite3,utils
+from objparser import obj_to_string,string_to_obj
 
 class Database():
     def __init__(self) -> None:
@@ -14,7 +14,7 @@ class Database():
         """)
         self.conn.commit()
 
-    def get_note(self,id:str):
+    def get_note(self,id:str,uid:str):
         self.cursor.execute("""
         SELECT (note_id,owner,team,note_text,settings,auth_code) FROM notes
         WHERE note_id = ?
@@ -24,12 +24,12 @@ class Database():
             return None
         note_id,owner,team,note_text,settings,auth_code = note
         data = {"id":note_id,"owner":owner,"team":string_to_obj(team),"note_text":note_text,"settings":string_to_obj(settings),"auth_code":auth_code}
-        return utils.classes.Note(data,self)
-    def get_user(self,id:str):
+        return utils.classes.Note(data,self,uid)
+    def authorize(self,token:str):
         self.cursor.execute("""
         SELECT (uid,username,password_hash,email,notes,display_name,auth_token) FROM users
-        WHERE uid = ?                    
-        """,(id,))
+        WHERE auth_token = ?
+        """,(token,))
         user = self.cursor.fetchone()
         if not user:
             return None

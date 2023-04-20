@@ -1,19 +1,21 @@
-from utils.database import Database
+import utils
 
 class Note():
-    def __init__(self,data:dict,db:Database) -> None:
+    def __init__(self,data:dict,db:utils.database.Database,uid:str) -> None:
         self.data = data
         self.owner:str = data['owner']
         self.id:str = data['id']
+        self.can_delete = uid == self.owner
         self.note_text:str = data['note_text']
         self.users:list = data['team']
         self.users = []
         self.settings:dict = data['settigns']
         self.auth_code:str = data['auth_code']
+        print(self.__dict__)
     def back_to_json(self):
-        return self.data
+        return self.__dict__
 class PartialUser():
-    def __init__(self,data:dict,db:Database) -> None:
+    def __init__(self,data:dict,db:utils.database.Database) -> None:
         self.data = data 
         self.uid:str = data['uid']
         self.username:str = data['username']
@@ -21,7 +23,7 @@ class PartialUser():
     def back_to_json(self):
         return self.data
 class AuthenticatedUser():
-    def __init__(self,data:dict,db:Database) -> None:
+    def __init__(self,data:dict,db:utils.database.Database) -> None:
         self.data = data
         self.uid:str = data['uid']
         self.email:str = data['email']
@@ -40,7 +42,7 @@ class UserSettings():
     def back_to_json(self):
         return self.data
 class NoteSettngs():
-    def __init__(self,data:dict,db:Database) -> None:
+    def __init__(self,data:dict,db:utils.database.Database) -> None:
         self.data = data
         self.auto_delete:int = data['auto_delete']
         
