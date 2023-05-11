@@ -1,3 +1,2 @@
-a = {"a":'b'}
-b = {"x":"y"}
-print({**a,**b})
+x=  5
+print(bool(x),bool(None))

@@ -65,6 +65,9 @@ def get_note(note_id):
     if request.method == "GET":
         pass
 
+@app.route("/api/usernames/<username>",methods=["GET"])
+def check_username(username):
+    return jsonify(available=not db.session.query(User).filter_by(username=username).first())
 @app.route("/api/auth/register",methods=["POST"])
 def register():
     username = request.json['username']
@@ -78,7 +81,17 @@ def register():
     user = User(username=username,email=email,password=hashlib.md5(password.encode()).hexdigest(),id=uuid.uuid4().__str__(),display_name=username,authToken=secrets.token_hex(32))
     db.session.add(user)
     db.session.commit()
-    return jsonify(**{**user.to_dict(),**{"authToken":user.authToken,"message":"Successfull registered!"}})
+    return jsonify(**{"authToken":user.authToken,"message":"Successfull registered!"})
+
+@app.route("/api/auth/currentUser",methods=["GET"])
+def get_current_user():
+    pass
+
+@app.route("/api/auth/checkAuth",methods=["GET"])
+def check_auth():
+    auth_token = request.headers['authToken']
+    return jsonify(valid=bool(db.session.query(User).filter_by(authToken=auth_token).first()),message="Successfully logged in")
+
 
 @app.route("/api/auth/login",methods=["POST"])
 def login():
@@ -90,7 +103,7 @@ def login():
         return (jsonify(error="No such user with the given email address exists!"),400)
     if not pw_hash == requested_user.password:
         return (jsonify(error="Invalid password!"),400)
-    return jsonify(**{**requested_user.to_dict(),**{"authToken":requested_user.authToken,"message":"Successfully logged in!"}})
+    return jsonify(**{"authToken":requested_user.authToken,"message":"Successfully logged in!"})
 @sock.route("/ws")
 def websocket_endpoint(ws:flask_sock.Server):
     while True:
@@ -106,4 +119,4 @@ def websocket_endpoint(ws:flask_sock.Server):
             resp = {"status":1,"username":user.username}
             ws.send(json.dumps())
 
-app.run("127.0.0.1",5000)
+app.run("0.0.0.0",5000)
